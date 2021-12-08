@@ -1,9 +1,12 @@
 # f = open("input_test.txt", "r")
 f = open("input.txt", "r")
 
+def summation(n):
+    return (n * (n + 1)) / 2
+
 def get_fuel_cost(crab_pos, target):
     costs = [abs(target - x) for x in crab_pos]
-    return sum([sum(range(1, x+1)) for x in costs])
+    return sum([summation(x) for x in costs])
 
 for line in f:
     input = line.strip()
