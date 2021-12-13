@@ -1,62 +1,102 @@
 # f = open("input_test.txt", "r")
 f = open("input.txt", "r")
 
-def print_map(map):
-    for row in map:
-        print(row)
-    print('*'*20)
+def print_paper(area):
+    for row in area:
+        print(''.join(row))
 
-def do_step(om):
-    for i, x in enumerate(om):
-        for j, y in enumerate(x):
-            om[i][j] += 1
+def do_fold(paper, instruction):
+    split_ins = instruction.split(' ')
+    ins = split_ins[2]
+    (axis, unit) = ins.split('=')
+    iunit = int(unit)
 
-    return om
+    max_x = len(paper[0])
+    max_y = len(paper)
 
-def do_flashes(om):
-    flashes = 0
-    new_flashes = True
-    rows = len(om)
-    cols = len(zip(*om))
+    if axis == 'y':
+        new_paper = [['.' for j in range(max_x)] for i in range((max_y)/2)]
+        top = paper[:iunit]
+        bottom = paper[(iunit+1):]
+        bottom.reverse()
 
-    while new_flashes:
-        new_flashes = False
-        for i, x in enumerate(om):
+        dot_count = 0
+        for i, x in enumerate(new_paper):
             for j, y in enumerate(x):
-                if om[i][j] > 9:
-                    new_flashes = True
-                    flashes += 1
-                    om[i][j] = 0
-                    if i != 0 and om[i-1][j] != 0:
-                        om[i-1][j] += 1
-                    if j != 0 and om[i][j-1] != 0:
-                        om[i][j-1] += 1
-                    if i != rows - 1 and om[i+1][j] != 0:
-                        om[i+1][j] += 1
-                    if j != cols - 1 and om[i][j+1] != 0:
-                        om[i][j+1] += 1
-                    if i != 0 and j != 0 and om[i-1][j-1] != 0:
-                        om[i-1][j-1] += 1
-                    if i != rows - 1 and j != cols - 1 and om[i+1][j+1] != 0:
-                        om[i+1][j+1] += 1
-                    if i != 0 and j != cols - 1 and om[i-1][j+1] != 0:
-                        om[i-1][j+1] += 1
-                    if i != rows - 1 and j != 0 and  om[i+1][j-1] != 0:
-                        om[i+1][j-1] += 1
+                if top[i][j] == '#':
+                    new_paper[i][j] = '#'
+                    dot_count += 1
+                elif bottom[i][j] == '#':
+                    new_paper[i][j] = '#'
+                    dot_count += 1
 
-    return (flashes, om)
+    elif axis == 'x':
+        paper = zip(*paper)
+        left = paper[:iunit]
+        right = paper[(iunit+1):]
+        right.reverse()
 
-octopus_map = [map(int, list(line.strip())) for line in f]
-print('OG MAP:')
-print_map(octopus_map)
+        left = zip(*left)
+        right = zip(*right)
 
-flashes = []
-for x in range(0, 500):
-    print('AFTER ROUND:', x+1)
-    octopus_map = do_step(octopus_map)
-    (f, octopus_map) = do_flashes(octopus_map)
-    print_map(octopus_map)
-    if f == 100:
-        print('ALL FLASHED ON STEP:', x+1)
-        break;
+        new_paper = [['.' for j in range(max_x/2)] for i in range(max_y)]
+        dot_count = 0
+        for i, x in enumerate(new_paper):
+            for j, y in enumerate(x):
+                if left[i][j] == '#':
+                    new_paper[i][j] = '#'
+                    dot_count += 1
+                elif right[i][j] == '#':
+                    new_paper[i][j] = '#'
+                    dot_count += 1
 
+    return (new_paper, dot_count)
+
+def mark_dot(input, paper):
+    (x, y) = map(int, input.split(','))
+    paper[y][x] = '#'
+
+    return paper
+
+def get_dims(coords):
+    max_x = 0
+    max_y = 0
+    for c in coords:
+
+        (x, y) = c.split(',')
+
+        if int(x) > max_x:
+            max_x = int(x)
+        if int(y) > max_y:
+            max_y = int(y)
+
+    return max_x, max_y
+
+instructions = []
+dot_coords = []
+space = False
+
+for line in f:
+    if line == '\n':
+        space = True
+
+    if not space:
+        dot_coords.append(line.strip())
+    else:
+        instructions.append(line.strip())
+
+(max_x, max_y) = get_dims(dot_coords)
+
+paper = [['.' for j in range(max_x+1)] for i in range(max_y+1)]
+instructions = instructions[1:]
+
+for c in dot_coords:
+    paper = mark_dot(c, paper)
+
+dots = []
+for i in instructions:
+    (new_paper, dot_count) = do_fold(paper, i)
+    dots.append(dot_count)
+    paper = new_paper
+
+print_paper(new_paper)
