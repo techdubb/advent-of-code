@@ -1,74 +1,48 @@
-# f = open("input_test.txt", "r")
-f = open("input.txt", "r")
+import itertools
 
-def print_universe(u):
-    for row in u:
-        for col in row:
-            print(col, end='')
-        print()
+f = open("input_test.txt", "r")
+# f = open("input_test1.2.txt", "r")
+# f = open("input.txt", "r")
 
-def expand_universe(u, coords):
-    row_sans_g = []
-    for r, row in enumerate(u):
-        if row.count('#') == 0:
-            row_sans_g.append(r)
 
-    transpose = list(map(list, zip(*u)))
+def get_combinations(chars, length):
+     yield from itertools.product(*([chars] * length)) 
 
-    col_sans_g = []
-    for r, row in enumerate(transpose):
-        if row.count('#') == 0:
-            col_sans_g.append(r)
+def is_valid_record(record, check):
+    sums = []
+    for part in record.split('.'):
+        if part:
+            sums.append(len(part))
 
-    print(row_sans_g)
-    print(col_sans_g)
+    return check == sums
 
-    exp_v = 999999
+def get_options(record):
+    errors = record.count('?')
+    print(errors)
+    return get_combinations('.#', errors)
 
-    for idx, c in enumerate(coords):
-        roff = 0
-        for row in row_sans_g:
-            if row < c[0]:
-                roff += exp_v
-
-        coff = 0
-        for col in col_sans_g:
-            if col < c[1]:
-                coff += exp_v
-
-        coords[idx] = (c[0] + roff, c[1] + coff)
-
-    return coords
-
-def get_coords(u):
-    coords = []
-    for r, row in enumerate(u):
-        for c, col in enumerate(row):
-            if col == '#':
-                coords.append((r,c))
-
-    return coords
-
-def step_distance(coordinate1, coordinate2):
-    return abs(coordinate1[0] - coordinate2[0]) + abs(coordinate1[1] - coordinate2[1])
-
-def get_pairs(indices):
-    return [(a, b) for idx, a in enumerate(indices) for b in indices[idx + 1:]]
-
-universe = []
+springs = []
 for line in f:
-    universe.append(list(line.strip()))
+    (r, c) = line.strip().split(' ')
+    # print(r,c)
+    new_r = r
+    new_c = c
+    for i in range(0,4):
+        new_r += '?' + r
+        new_c += ',' + c
 
-c = get_coords(universe)
-# print_universe(universe)
-ec = expand_universe(universe, c)
+    springs.append((new_r, new_c))
 
-pairs = get_pairs(range(0, len(ec)))
+total = 0
+# for record in springs:
+record = springs[1]
+opts = get_options(record[0])
+print(len([*opts]))
+check = [int(x) for x in record[1].split(',')]
+preped_record = record[0].replace('?', "%s")
+# for o in opts:
+#     si = preped_record%tuple(o)
+#     if is_valid_record(si, check):
+#         total += 1
 
-dists = []
-for p in pairs:
-    dists.append(step_distance(ec[p[0]], ec[p[1]]))
-
-# print(dists)
-print(sum(dists))
-
+print(total)
