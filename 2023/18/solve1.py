@@ -87,7 +87,7 @@ for r in range(0, site_dim):
     for c in range(0, site_dim):
         site[r].append('.')
 
-coords = get_coords(instr, (0,0))
+coords = get_coords(instr, (1,1))
 coords.reverse()
 # print(coords)
 print(shoelace(coords))
