@@ -1,4 +1,5 @@
 import numpy as np
+from shapely.geometry import Polygon
 
 f = open("input_test.txt", "r")
 # f = open("input.txt", "r")
@@ -39,13 +40,13 @@ def get_coords(instr, start):
         (dir, cnt, color) = i
 
         if dir == 'R':
-            c += cnt
+            c += (cnt+1)
         elif dir == 'L':
-            c -= cnt
+            c -= (cnt)
         elif dir == 'D':
-            r += cnt
+            r += (cnt+1)
         elif dir == 'U':
-            r -= cnt
+            r -= (cnt)
 
         coords.append((r,c))
 
@@ -87,13 +88,11 @@ for r in range(0, site_dim):
     for c in range(0, site_dim):
         site[r].append('.')
 
+# hc_coords = [(1, 1), (4, 1), (4, 8), (1, 8), (1, 1)]
 coords = get_coords(instr, (1,1))
 coords.reverse()
-# print(coords)
+print(coords)
 print(shoelace(coords))
+pgon = Polygon(coords)
 
-# # print(inst)
-# do_digging(instr, (0,0))
-
-# for s in site:
-#     print(''.join(s))
+print(pgon.area)
